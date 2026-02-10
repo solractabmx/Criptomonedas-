@@ -1,0 +1,7 @@
+{
+  "name": "Copy of NexusCrypto - Investment & Rewards",
+  "description": "Una plataforma integral de inversión en criptomonedas con billetera segura, análisis de mercado impulsado por IA y una sección de juegos para ganar bonos convertibles a cripto o transferencias STP.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
