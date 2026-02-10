@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import GamesSection from './components/GamesSection';
 import ExchangeSection from './components/ExchangeSection';
 import AdvisorSection from './components/AdvisorSection';
 import { AppTab, UserProfile } from './types';
+import { WifiOff } from 'lucide-react';
 
 const INITIAL_USER: UserProfile = {
   name: 'Alex Rivera',
@@ -17,7 +18,32 @@ const INITIAL_USER: UserProfile = {
 
 function App() {
   const [activeTab, setActiveTab] = useState<AppTab>(AppTab.DASHBOARD);
-  const [user, setUser] = useState<UserProfile>(INITIAL_USER);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  
+  // Load initial state from local storage or use default
+  const [user, setUser] = useState<UserProfile>(() => {
+    const savedUser = localStorage.getItem('nexus_user_data');
+    return savedUser ? JSON.parse(savedUser) : INITIAL_USER;
+  });
+
+  // Sync state to local storage
+  useEffect(() => {
+    localStorage.setItem('nexus_user_data', JSON.stringify(user));
+  }, [user]);
+
+  // Connectivity Listeners
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const handleEarnBonus = (amount: number) => {
     setUser(prev => ({
@@ -64,13 +90,21 @@ function App() {
   };
 
   return (
-    <Layout 
-      activeTab={activeTab} 
-      setActiveTab={setActiveTab} 
-      userBonus={user.bonusPoints}
-    >
-      {renderContent()}
-    </Layout>
+    <div className="relative">
+      {!isOnline && (
+        <div className="bg-red-600 text-white py-1 px-4 text-center text-xs font-bold animate-pulse flex items-center justify-center space-x-2 z-[100] sticky top-0">
+          <WifiOff size={14} />
+          <span>ESTÁS EN MODO OFFLINE - ALGUNAS FUNCIONES IA ESTÁN DESHABILITADAS</span>
+        </div>
+      )}
+      <Layout 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        userBonus={user.bonusPoints}
+      >
+        {renderContent()}
+      </Layout>
+    </div>
   );
 }
 

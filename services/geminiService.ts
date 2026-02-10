@@ -3,7 +3,12 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
+const isOnline = () => navigator.onLine;
+
 export const getMarketAnalysis = async (assetName: string) => {
+  if (!isOnline()) {
+    return "Modo Offline: No se puede conectar con el Asesor IA. Por favor, revisa tu conexión a internet.";
+  }
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -17,6 +22,7 @@ export const getMarketAnalysis = async (assetName: string) => {
 };
 
 export const generateCryptoQuiz = async () => {
+  if (!isOnline()) return null;
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
